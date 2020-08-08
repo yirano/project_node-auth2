@@ -15,4 +15,9 @@ export const Form = styled.form`
       outline: none;
     }
   }
+  .login {
+    display: flex;
+    flex-direction: column;
+    max-width: 200px;
+  }
 `;
