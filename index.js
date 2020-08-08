@@ -12,12 +12,6 @@ server.use(helmet());
 server.use(cors());
 server.use(cookieParser());
 
-// server.use(session({
-//   resave: false, // avoid recreating sessions that have not changed
-//   saveUninitialized: false, // comply with GDPR laws for setting cookies automatically
-//   secret: "keep it safe", // cryptographically sign the cookie
-// }))
-
 server.use("/users", usersRouter);
 
 server.use((err, req, res, next) => {
