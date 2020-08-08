@@ -6,7 +6,7 @@ function find() {
 
 function findBy(username) {
   return db('users')
-    .where('users.username', 'username')
+    .where('users.username', username)
 }
 
 function add(user) {
