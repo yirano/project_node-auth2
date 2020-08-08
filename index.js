@@ -1,12 +1,16 @@
-const express = require('express')
-const usersRouter = require('./routers/users-router')
-const cookieParser = require('cookie-parser')
+const express = require("express");
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
+const helmet = require("helmet");
+const usersRouter = require("./routers/users-router");
 
-const server = express()
-const PORT = process.env.PORT || 4000
+const server = express();
+const PORT = process.env.PORT || 4000;
 
-server.use(express.json())
-server.use(cookieParser())
+server.use(express.json());
+server.use(helmet());
+server.use(cors());
+server.use(cookieParser());
 
 // server.use(session({
 //   resave: false, // avoid recreating sessions that have not changed
@@ -14,15 +18,15 @@ server.use(cookieParser())
 //   secret: "keep it safe", // cryptographically sign the cookie
 // }))
 
-server.use('/users', usersRouter)
+server.use("/users", usersRouter);
 
 server.use((err, req, res, next) => {
-  console.dir(err)
+  console.dir(err);
   res.status(500).json({
-    errorMessage: 'Something went wrong'
-  })
-})
+    errorMessage: "Something went wrong",
+  });
+});
 
 server.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`)
-})
+  console.log(`Server is running at http://localhost:${PORT}`);
+});
