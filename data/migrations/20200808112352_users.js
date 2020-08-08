@@ -5,6 +5,7 @@ exports.up = async function (knex) {
     table.text('username').notNull().unique()
     table.text('password').notNull()
     table.text('department').default('administration')
+    table.text('role').notNull()
   })
 }
 

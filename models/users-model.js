@@ -4,12 +4,20 @@ function find() {
   return db('users')
 }
 
-function findUsers() {
+function findBy(username) {
+  return db('users')
+    .where('users.username', 'username')
+}
 
+function add(user) {
+  return db('users')
+    .insert(user)
 }
 
 
 module.exports = {
   find,
-  findUsers,
+  findBy,
+  add,
+
 }
