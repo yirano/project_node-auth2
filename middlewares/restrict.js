@@ -17,7 +17,7 @@ function restrict(role) {
         }
 
         if (role && roles.indexOf(decoded.role) < roles.indexOf(role)) {
-          return res.status(401).json(authError)
+          return res.status(401).json({ message: "You don't have access to this feature." })
         }
 
         next()
