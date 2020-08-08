@@ -36881,7 +36881,6 @@ var Login = function Login() {
 
     _axios.default.post("https://yirano-auth2.herokuapp.com/users/login", form).then(function (res) {
       console.log("Log In ---> ", res);
-      console.log("LOGGG -->", form);
     }).catch(function (err) {
       console.log(err);
     });

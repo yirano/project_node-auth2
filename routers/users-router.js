@@ -21,7 +21,6 @@ router.get("/students", restrict("teacher"), async (req, res, next) => {
 });
 
 router.get("/department", restrict("student"), async (req, res, next) => {
-  // console.log(jwt.decode(req.cookies.token));
   try {
     const decode = jwt.decode(req.cookies.token);
     res.json(await Users.getDepartment(decode.department));
@@ -91,19 +90,7 @@ router.post("/login", async (req, res, next) => {
 });
 
 router.get("/logout", async (req, res, next) => {
-  // console.log('LOG OUT -----> ',req.session)
   try {
-    // this will delete the session in the database and try to expire the cookie,
-    // though it's ultimately up to the client if they delete the cookie or not.
-    // but it becomes useless to them once the session is deleted server-side.
-    // req.session.destroy((err) => {
-    //   if (err) {
-    //     next(err)
-    //   } else {
-    //     res.status(204).end()
-    //   }
-    // })
-
     res.clearCookie("token").end();
   } catch (err) {
     next(err);

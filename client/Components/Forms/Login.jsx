@@ -19,7 +19,6 @@ const Login = () => {
     Axios.post("https://yirano-auth2.herokuapp.com/users/login", form)
       .then((res) => {
         console.log("Log In ---> ", res);
-        console.log("LOGGG -->", form);
       })
       .catch((err) => {
         console.log(err);
