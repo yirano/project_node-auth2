@@ -35223,7 +35223,7 @@ var _styledComponents = _interopRequireDefault(require("styled-components"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _templateObject() {
-  var data = _taggedTemplateLiteral(["\n  input[type=\"text] {\n    border: none;\n    border-bottom: 1px solid black;\n    padding: 4px 14px;\n  }\n"]);
+  var data = _taggedTemplateLiteral(["\n  display: flex;\n  flex-direction: column;\n  div {\n    input[type=\"text\"],\n    input[type=\"password\"] {\n      margin: 20px;\n      border: none;\n      border-bottom: 1px solid black;\n      padding: 4px 14px;\n      min-width: 300px;\n      font-size: 15px;\n      outline: none;\n    }\n  }\n"]);
 
   _templateObject = function _templateObject() {
     return data;
@@ -35252,16 +35252,48 @@ var _styled = require("../../Utils/styled");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var Registration = function Registration() {
-  return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement(_styled.Form, null, /*#__PURE__*/_react.default.createElement("input", {
+  return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement(_styled.Form, null, /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("input", {
     type: "text",
     placeholder: "First Name"
   }), /*#__PURE__*/_react.default.createElement("input", {
     type: "text",
     placeholder: "Last Name"
-  })));
+  })), /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("input", {
+    type: "text",
+    placeholder: "Username"
+  }), /*#__PURE__*/_react.default.createElement("input", {
+    type: "password",
+    placeholder: "Password"
+  }))));
 };
 
 var _default = Registration;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","../../Utils/styled":"../Utils/styled.js"}],"../Components/Forms/Login.jsx":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _styled = require("../../Utils/styled");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Login = function Login() {
+  return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement(_styled.Form, null, /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("input", {
+    type: "text",
+    placeholder: "Username"
+  }), /*#__PURE__*/_react.default.createElement("input", {
+    type: "password",
+    placeholder: "Password"
+  }))));
+};
+
+var _default = Login;
 exports.default = _default;
 },{"react":"../node_modules/react/index.js","../../Utils/styled":"../Utils/styled.js"}],"../Components/App.js":[function(require,module,exports) {
 "use strict";
@@ -35277,15 +35309,29 @@ var _reactRouterDom = require("react-router-dom");
 
 var _Registration = _interopRequireDefault(require("./Forms/Registration"));
 
+var _Login = _interopRequireDefault(require("./Forms/Login"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var App = function App() {
-  return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement(_Registration.default, null));
+  return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement(_reactRouterDom.Link, {
+    to: "/registration"
+  }, "Register"), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Link, {
+    to: "/login"
+  }, "Log In"), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Link, {
+    to: "/admin"
+  }, "Admin"), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, {
+    path: "/admin"
+  }), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, {
+    path: "/registration"
+  }, /*#__PURE__*/_react.default.createElement(_Registration.default, null)), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, {
+    path: "/login"
+  }, /*#__PURE__*/_react.default.createElement(_Login.default, null)));
 };
 
 var _default = App;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","./Forms/Registration":"../Components/Forms/Registration.jsx"}],"../index.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","./Forms/Registration":"../Components/Forms/Registration.jsx","./Forms/Login":"../Components/Forms/Login.jsx"}],"../index.js":[function(require,module,exports) {
 "use strict";
 
 var _react = _interopRequireDefault(require("react"));
