@@ -1,7 +1,7 @@
 const db = require("../data/config");
 
 function getAll() {
-  return db("users");
+  return db("users").select("users.username");
 }
 
 function findBy(username) {
