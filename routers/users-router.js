@@ -80,7 +80,7 @@ router.post("/login", async (req, res, next) => {
       role: user.role, // this value would usually come from the database
     };
 
-    res.cookie("token", jwt.sign(payload, "keep it safe"));
+    res.cookie("token", jwt.sign(payload, process.env.SECRET));
     res.json({
       message: `Welcome ${user.username}!`,
       id: user.id,
