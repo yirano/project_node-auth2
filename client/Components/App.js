@@ -1,7 +1,9 @@
-import React from "react";
-import { Link, Route, Switch } from "react-router-dom";
-import Registration from "./Forms/Registration";
-import Login from "./Forms/Login";
+import React from "react"
+import { Link, Route, Switch } from "react-router-dom"
+import Registration from "./Forms/Registration"
+import Login from "./Forms/Login"
+import PrivateRoute from '../Utils/ PrivateRoute'
+import UserContainer from './Users/UserContainer'
 
 const App = () => {
   return (
@@ -19,8 +21,12 @@ const App = () => {
       <Route path="/login">
         <Login />
       </Route>
-    </div>
-  );
-};
 
-export default App;
+      <PrivateRoute path="/admin">
+        <UserContainer />
+      </PrivateRoute>
+    </div>
+  )
+}
+
+export default App
