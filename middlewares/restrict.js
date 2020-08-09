@@ -9,7 +9,6 @@ function restrict(role) {
     try {
       // const token = req.cookies.token
       const token = req.headers.authorization || req.cookies.token
-      console.log(token)
       if (!token) {
         return res.status(401).json(authError)
       }

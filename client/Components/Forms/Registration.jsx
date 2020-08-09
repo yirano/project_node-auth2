@@ -1,7 +1,14 @@
-import React from "react";
-import { Form } from "../../Utils/styled";
+import React, { useState } from "react"
+import { Form } from "../../Utils/styled"
 
+
+const initialState = {
+  username: "",
+  password: "",
+  department: "",
+}
 const Registration = () => {
+  const [form, setForm] = useState()
   return (
     <div>
       <Form>
@@ -12,10 +19,11 @@ const Registration = () => {
         <div>
           <input type="text" placeholder="Username" />
           <input type="password" placeholder="Password" />
+          <input type="text" placeholder="Department" />
         </div>
       </Form>
     </div>
-  );
-};
+  )
+}
 
-export default Registration;
+export default Registration
