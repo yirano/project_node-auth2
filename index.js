@@ -8,10 +8,11 @@ const server = express()
 const PORT = process.env.PORT || 4000
 
 server.use(express.json())
-server.use(helmet())
+// server.use(helmet())
 server.use(cors({
   origin: 'http://localhost:1234',
-  credentials: true
+  credentials: true,
+  exposedHeaders: ['Access-Token', 'token', 'Set-Cookies', 'Set-Cookie']
 }))
 
 server.use(cookieParser())

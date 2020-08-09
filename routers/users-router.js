@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 router.get("/", restrict("dean"), async (req, res, next) => {
+// router.get('/', async (req, res, next) => { 
   try {
     res.json(await Users.getAll());
   } catch (error) {
@@ -92,11 +93,11 @@ router.post("/login", async (req, res, next) => {
 
     const token = await jwt.sign(payload, process.env.SECRET);
     res.cookie("token", token, { httpOnly: true });
-
+    res.append('Set-Cookie', 'THIS IS MY COOKIE')
     res.json({
       message: `Welcome ${user.username}!`,
       id: user.id,
-      token: token,
+      // token: token,
       role: user.role,
       department: user.department,
     });

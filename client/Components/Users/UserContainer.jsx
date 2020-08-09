@@ -10,7 +10,7 @@ const UserContainer = () => {
     axiosWithAuth()
       .get("http://localhost:4000/users/")
       .then((res) => {
-        console.log(res.data);
+        console.log(res);
         setData(res.data);
       })
       .catch((err) => {
