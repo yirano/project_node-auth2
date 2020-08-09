@@ -1,7 +1,7 @@
 const db = require("../data/config");
 
 function getAll() {
-  return db("users").select("users.username");
+  return db("users");
 }
 
 function findBy(username) {
@@ -11,7 +11,7 @@ function findBy(username) {
 function getStudents() {
   return db("users")
     .select(
-      "users.username as student",
+      "users.username as username",
       "users.department as department",
       "users.role as role"
     )
@@ -19,9 +19,10 @@ function getStudents() {
 }
 
 function getDepartment(dept) {
+  console.log("MODEL ", dept);
   return db("users")
     .select(
-      "users.username as student",
+      "users.username",
       "users.department as department",
       "users.role as role"
     )

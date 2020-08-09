@@ -35216,11 +35216,31 @@ exports.default = _default;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Form = void 0;
+exports.Dashboard = exports.Card = exports.Form = void 0;
 
 var _styledComponents = _interopRequireDefault(require("styled-components"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _templateObject3() {
+  var data = _taggedTemplateLiteral(["\n  display: flex;\n  flex-wrap: wrap;\n  space-between: center;\n"]);
+
+  _templateObject3 = function _templateObject3() {
+    return data;
+  };
+
+  return data;
+}
+
+function _templateObject2() {
+  var data = _taggedTemplateLiteral(["\n  border: 1px solid black;\n  padding: 20px;\n  margin: 30px;\n  width: 191px;\n  border-radius: 8px;\n"]);
+
+  _templateObject2 = function _templateObject2() {
+    return data;
+  };
+
+  return data;
+}
 
 function _templateObject() {
   var data = _taggedTemplateLiteral(["\n  display: flex;\n  flex-direction: column;\n  div {\n    input[type=\"text\"],\n    input[type=\"password\"] {\n      margin: 20px;\n      border: none;\n      border-bottom: 1px solid black;\n      padding: 4px 14px;\n      min-width: 300px;\n      font-size: 15px;\n      outline: none;\n    }\n  }\n  .login {\n    display: flex;\n    flex-direction: column;\n    max-width: 200px;\n  }\n"]);
@@ -35237,6 +35257,14 @@ function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(
 var Form = _styledComponents.default.form(_templateObject());
 
 exports.Form = Form;
+
+var Card = _styledComponents.default.div(_templateObject2());
+
+exports.Card = Card;
+
+var Dashboard = _styledComponents.default.div(_templateObject3());
+
+exports.Dashboard = Dashboard;
 },{"styled-components":"../node_modules/styled-components/dist/styled-components.browser.esm.js"}],"../Components/Forms/Registration.jsx":[function(require,module,exports) {
 "use strict";
 
@@ -36884,9 +36912,17 @@ var Login = function Login(props) {
     e.preventDefault();
 
     _axios.default.post("http://localhost:4000/users/login", form).then(function (res) {
-      console.log("Log In ---> ", res);
-      localStorage.setItem('token', res.data.token);
-      history.push('/admin');
+      console.log("Log In ---> ", res.data);
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("department", res.data.department);
+
+      if (res.data.role === "dean") {
+        history.push("/admin");
+      } else if (res.data.role === "teacher") {
+        history.push("/teacher");
+      } else {
+        history.push("/student");
+      }
     }).catch(function (err) {
       console.log(err);
     });
@@ -38948,17 +38984,39 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var axiosWithAuth = function axiosWithAuth() {
   var token = localStorage.getItem("token");
+  var department = localStorage.getItem("department");
   return _axios.default.create({
     // baseURL: "https://yirano-auth2.herokuapp.com/users",
     withCredentials: true,
     headers: {
-      Authorization: token
+      Authorization: token,
+      department: department
     }
   });
 };
 
 exports.axiosWithAuth = axiosWithAuth;
-},{"axios":"../node_modules/axios/index.js","console":"../node_modules/console-browserify/index.js"}],"../Components/Users/UserContainer.jsx":[function(require,module,exports) {
+},{"axios":"../node_modules/axios/index.js","console":"../node_modules/console-browserify/index.js"}],"../Components/Users/UserCard.jsx":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _styled = require("../../Utils/styled");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var UserCard = function UserCard(props) {
+  return /*#__PURE__*/_react.default.createElement(_styled.Card, null, /*#__PURE__*/_react.default.createElement("p", null, "Name: ", props.data.username), /*#__PURE__*/_react.default.createElement("p", null, "Role: ", props.data.role), /*#__PURE__*/_react.default.createElement("p", null, "Department: ", props.data.department));
+};
+
+var _default = UserCard;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","../../Utils/styled":"../Utils/styled.js"}],"../Components/Users/UserContainer.jsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38969,6 +39027,12 @@ exports.default = void 0;
 var _react = _interopRequireWildcard(require("react"));
 
 var _axiosWithAuth = require("../../Utils/axiosWithAuth");
+
+var _UserCard = _interopRequireDefault(require("./UserCard"));
+
+var _styled = require("../../Utils/styled");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
@@ -38993,21 +39057,137 @@ var UserContainer = function UserContainer() {
       setData = _useState2[1];
 
   (0, _react.useEffect)(function () {
-    (0, _axiosWithAuth.axiosWithAuth)().get('http://localhost:4000/users/').then(function (res) {
-      console.log(res);
+    (0, _axiosWithAuth.axiosWithAuth)().get("http://localhost:4000/users/").then(function (res) {
+      console.log(res.data);
       setData(res.data);
     }).catch(function (err) {
       console.log(err);
     });
   }, []);
-  return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("h1", null, "This is private"), data.map(function (d) {
-    return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement("h4", null, d.username));
-  }));
+  return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("h4", null, "Hello Dean,"), /*#__PURE__*/_react.default.createElement(_styled.Dashboard, null, data.map(function (d) {
+    return /*#__PURE__*/_react.default.createElement(_UserCard.default, {
+      data: d
+    });
+  })));
 };
 
 var _default = UserContainer;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","../../Utils/axiosWithAuth":"../Utils/axiosWithAuth.js"}],"../Components/App.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","../../Utils/axiosWithAuth":"../Utils/axiosWithAuth.js","./UserCard":"../Components/Users/UserCard.jsx","../../Utils/styled":"../Utils/styled.js"}],"../Components/Users/StudentContainer.jsx":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireWildcard(require("react"));
+
+var _axiosWithAuth = require("../../Utils/axiosWithAuth");
+
+var _UserCard = _interopRequireDefault(require("./UserCard"));
+
+var _styled = require("../../Utils/styled");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+var StudentContainer = function StudentContainer() {
+  var _useState = (0, _react.useState)([]),
+      _useState2 = _slicedToArray(_useState, 2),
+      students = _useState2[0],
+      setStudents = _useState2[1];
+
+  (0, _react.useEffect)(function () {
+    (0, _axiosWithAuth.axiosWithAuth)().get("http://localhost:4000/users/students").then(function (res) {
+      console.log(res);
+      setStudents(res.data);
+    }).catch(function (err) {
+      console.log(err);
+    });
+  }, []);
+  return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("h4", null, "Hello Teacher,"), /*#__PURE__*/_react.default.createElement(_styled.Dashboard, null, students.map(function (s) {
+    return /*#__PURE__*/_react.default.createElement(_UserCard.default, {
+      data: s
+    });
+  })));
+};
+
+var _default = StudentContainer;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","../../Utils/axiosWithAuth":"../Utils/axiosWithAuth.js","./UserCard":"../Components/Users/UserCard.jsx","../../Utils/styled":"../Utils/styled.js"}],"../Components/Users/DepartmentContainer.jsx":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireWildcard(require("react"));
+
+var _styled = require("../../Utils/styled");
+
+var _axiosWithAuth = require("../../Utils/axiosWithAuth");
+
+var _UserCard = _interopRequireDefault(require("../Users/UserCard"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+var DepartmentContainer = function DepartmentContainer() {
+  var _useState = (0, _react.useState)([]),
+      _useState2 = _slicedToArray(_useState, 2),
+      dept = _useState2[0],
+      setDept = _useState2[1];
+
+  (0, _react.useEffect)(function () {
+    (0, _axiosWithAuth.axiosWithAuth)().get("http://localhost:4000/users/department").then(function (res) {
+      console.log(res);
+      setDept(res.data);
+    }).catch(function (err) {
+      console.log(err);
+    });
+  }, []);
+  return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("h4", null, "Hello Student,"), /*#__PURE__*/_react.default.createElement(_styled.Dashboard, null, dept.map(function (s) {
+    return /*#__PURE__*/_react.default.createElement(_UserCard.default, {
+      data: s
+    });
+  })));
+};
+
+var _default = DepartmentContainer;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","../../Utils/styled":"../Utils/styled.js","../../Utils/axiosWithAuth":"../Utils/axiosWithAuth.js","../Users/UserCard":"../Components/Users/UserCard.jsx"}],"../Components/App.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39027,14 +39207,22 @@ var _PrivateRoute = _interopRequireDefault(require("../Utils/ PrivateRoute"));
 
 var _UserContainer = _interopRequireDefault(require("./Users/UserContainer"));
 
+var _StudentContainer = _interopRequireDefault(require("./Users/StudentContainer"));
+
+var _DepartmentContainer = _interopRequireDefault(require("./Users/DepartmentContainer"));
+
 var _axios = _interopRequireDefault(require("axios"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var App = function App() {
+  var history = (0, _reactRouterDom.useHistory)();
+
   var handleClick = function handleClick() {
-    _axios.default.get('http://localhost:4000/users/logout').then(function (res) {
-      localStorage.removeItem('token');
+    _axios.default.get("http://localhost:4000/users/logout").then(function (res) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("dept");
+      history.push("/login");
     }).catch(function (err) {
       console.log(err);
     });
@@ -39045,25 +39233,29 @@ var App = function App() {
   }, "Register"), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Link, {
     to: "/login"
   }, "Log In"), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Link, {
-    to: "/admin"
-  }, "Admin"), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Link, {
     to: "/logout",
     onClick: handleClick
-  }, "Log Out"), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, {
+  }, "Log Out"), /*#__PURE__*/_react.default.createElement(_PrivateRoute.default, {
+    path: "/admin",
+    component: _UserContainer.default
+  }), /*#__PURE__*/_react.default.createElement(_PrivateRoute.default, {
+    path: "/teacher",
+    component: _StudentContainer.default
+  }), /*#__PURE__*/_react.default.createElement(_PrivateRoute.default, {
+    path: "/student",
+    component: _DepartmentContainer.default
+  }), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Switch, null, /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, {
     path: "/admin"
   }), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, {
     path: "/registration"
   }, /*#__PURE__*/_react.default.createElement(_Registration.default, null)), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, {
     path: "/login"
-  }, /*#__PURE__*/_react.default.createElement(_Login.default, null)), /*#__PURE__*/_react.default.createElement(_PrivateRoute.default, {
-    path: "/admin",
-    component: _UserContainer.default
-  }));
+  }, /*#__PURE__*/_react.default.createElement(_Login.default, null))));
 };
 
 var _default = App;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","./Forms/Registration":"../Components/Forms/Registration.jsx","./Forms/Login":"../Components/Forms/Login.jsx","../Utils/ PrivateRoute":"../Utils/ PrivateRoute.js","./Users/UserContainer":"../Components/Users/UserContainer.jsx","axios":"../node_modules/axios/index.js"}],"../index.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","./Forms/Registration":"../Components/Forms/Registration.jsx","./Forms/Login":"../Components/Forms/Login.jsx","../Utils/ PrivateRoute":"../Utils/ PrivateRoute.js","./Users/UserContainer":"../Components/Users/UserContainer.jsx","./Users/StudentContainer":"../Components/Users/StudentContainer.jsx","./Users/DepartmentContainer":"../Components/Users/DepartmentContainer.jsx","axios":"../node_modules/axios/index.js"}],"../index.js":[function(require,module,exports) {
 "use strict";
 
 var _react = _interopRequireDefault(require("react"));
@@ -39105,7 +39297,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52191" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60210" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

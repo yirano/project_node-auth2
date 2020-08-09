@@ -3,30 +3,30 @@ import { axiosWithAuth } from "../../Utils/axiosWithAuth";
 import UserCard from "./UserCard";
 import { Dashboard } from "../../Utils/styled";
 
-const UserContainer = () => {
-  const [data, setData] = useState([]);
-
+const StudentContainer = () => {
+  const [students, setStudents] = useState([]);
   useEffect(() => {
     axiosWithAuth()
-      .get("http://localhost:4000/users/")
+      .get("http://localhost:4000/users/students")
       .then((res) => {
-        console.log(res.data);
-        setData(res.data);
+        console.log(res);
+        setStudents(res.data);
       })
       .catch((err) => {
         console.log(err);
       });
   }, []);
+
   return (
     <div>
-      <h4>Hello Dean,</h4>
+      <h4>Hello Teacher,</h4>
       <Dashboard>
-        {data.map((d) => (
-          <UserCard data={d} />
+        {students.map((s) => (
+          <UserCard data={s} />
         ))}
       </Dashboard>
     </div>
   );
 };
 
-export default UserContainer;
+export default StudentContainer;
