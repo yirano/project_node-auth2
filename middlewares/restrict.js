@@ -7,8 +7,8 @@ function restrict(role) {
   return async (req, res, next) => {
     const authError = { message: "Invalid Credentials" }
     try {
-      const token = req.headers.authorization
-      // const token = req.cookies
+      // const token = req.headers.authorization
+      const token = req
       console.log(token)
       if (!token) {
         return res.status(401).json(authError)

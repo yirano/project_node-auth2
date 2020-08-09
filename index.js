@@ -9,7 +9,11 @@ const PORT = process.env.PORT || 4000
 
 server.use(express.json())
 server.use(helmet())
-server.use(cors())
+server.use(cors({
+  origin: 'http://localhost:1234',
+  credentials: true
+}))
+
 server.use(cookieParser())
 
 server.use("/users", usersRouter)
