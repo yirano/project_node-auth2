@@ -79,7 +79,8 @@ router.post("/login", async (req, res, next) => {
       role: user.role, // this value would usually come from the database
     }
 
-    const token = await res.cookie("token", jwt.sign(payload, process.env.SECRET))
+    const token = jwt.sign(payload, process.env.SECRET)
+    res.cookie("token", token)
     res.json({
       message: `Welcome ${user.username}!`,
       id: user.id,

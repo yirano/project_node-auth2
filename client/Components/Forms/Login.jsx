@@ -1,29 +1,33 @@
-import React, { useState } from "react";
-import { Form } from "../../Utils/styled";
-import Axios from "axios";
+import React, { useState } from "react"
+import { Form } from "../../Utils/styled"
+import Axios from "axios"
+import { useHistory } from 'react-router-dom'
 
 const initialForm = {
   username: "",
   password: "",
-};
+}
 
-const Login = () => {
-  const [form, setForm] = useState(initialForm);
+const Login = (props) => {
+  const [form, setForm] = useState(initialForm)
+  const history = useHistory()
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+    setForm({ ...form, [e.target.name]: e.target.value })
+  }
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    Axios.post("https://yirano-auth2.herokuapp.com/users/login", form)
+    e.preventDefault()
+    Axios.post("http://localhost:4000/users/login", form)
       .then((res) => {
-        console.log("Log In ---> ", res);
+        console.log("Log In ---> ", res)
+        localStorage.setItem('token', res.data.token)
+        history.push('/admin')
       })
       .catch((err) => {
-        console.log(err);
-      });
-  };
+        console.log(err)
+      })
+  }
   return (
     <div>
       <Form onSubmit={handleSubmit}>
@@ -46,7 +50,7 @@ const Login = () => {
         </div>
       </Form>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login

@@ -36837,6 +36837,8 @@ var _styled = require("../../Utils/styled");
 
 var _axios = _interopRequireDefault(require("axios"));
 
+var _reactRouterDom = require("react-router-dom");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
@@ -36866,11 +36868,13 @@ var initialForm = {
   password: ""
 };
 
-var Login = function Login() {
+var Login = function Login(props) {
   var _useState = (0, _react.useState)(initialForm),
       _useState2 = _slicedToArray(_useState, 2),
       form = _useState2[0],
       setForm = _useState2[1];
+
+  var history = (0, _reactRouterDom.useHistory)();
 
   var handleChange = function handleChange(e) {
     setForm(_objectSpread(_objectSpread({}, form), {}, _defineProperty({}, e.target.name, e.target.value)));
@@ -36879,8 +36883,10 @@ var Login = function Login() {
   var handleSubmit = function handleSubmit(e) {
     e.preventDefault();
 
-    _axios.default.post("https://yirano-auth2.herokuapp.com/users/login", form).then(function (res) {
+    _axios.default.post("http://localhost:4000/users/login", form).then(function (res) {
       console.log("Log In ---> ", res);
+      localStorage.setItem('token', res.data.token);
+      history.push('/admin');
     }).catch(function (err) {
       console.log(err);
     });
@@ -36910,7 +36916,7 @@ var Login = function Login() {
 
 var _default = Login;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","../../Utils/styled":"../Utils/styled.js","axios":"../node_modules/axios/index.js"}],"../Utils/ PrivateRoute.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","../../Utils/styled":"../Utils/styled.js","axios":"../node_modules/axios/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js"}],"../Utils/ PrivateRoute.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -36918,7 +36924,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
+var _react = _interopRequireDefault(require("react"));
+
 var _reactRouterDom = require("react-router-dom");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
@@ -36930,13 +36940,13 @@ var PrivateRoute = function PrivateRoute(_ref) {
   var Component = _ref.component,
       rest = _objectWithoutProperties(_ref, ["component"]);
 
-  return /*#__PURE__*/React.createElement(_reactRouterDom.Route, _extends({}, rest, {
+  return /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, _extends({}, rest, {
     // path='/protected'
     render: function render(props) {
       if (localStorage.getItem('token')) {
-        return /*#__PURE__*/React.createElement(Component, props); // Component being rendered is "Protected"
+        return /*#__PURE__*/_react.default.createElement(Component, props); // Component being rendered is "Protected"
       } else {
-        return /*#__PURE__*/React.createElement(_reactRouterDom.Redirect, {
+        return /*#__PURE__*/_react.default.createElement(_reactRouterDom.Redirect, {
           to: "/login"
         });
       }
@@ -36946,7 +36956,7 @@ var PrivateRoute = function PrivateRoute(_ref) {
 
 var _default = PrivateRoute;
 exports.default = _default;
-},{"react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js"}],"../Components/Users/UserContainer.jsx":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js"}],"../Components/Users/UserContainer.jsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -36984,29 +36994,43 @@ var _PrivateRoute = _interopRequireDefault(require("../Utils/ PrivateRoute"));
 
 var _UserContainer = _interopRequireDefault(require("./Users/UserContainer"));
 
+var _axios = _interopRequireDefault(require("axios"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var App = function App() {
+  var handleClick = function handleClick() {
+    _axios.default.get('http://localhost:4000/users/logout').then(function (res) {
+      localStorage.removeItem('token');
+    }).catch(function (err) {
+      console.log(err);
+    });
+  };
+
   return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement(_reactRouterDom.Link, {
     to: "/registration"
   }, "Register"), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Link, {
     to: "/login"
   }, "Log In"), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Link, {
     to: "/admin"
-  }, "Admin"), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, {
+  }, "Admin"), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Link, {
+    to: "/logout",
+    onClick: handleClick
+  }, "Log Out"), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, {
     path: "/admin"
   }), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, {
     path: "/registration"
   }, /*#__PURE__*/_react.default.createElement(_Registration.default, null)), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Route, {
     path: "/login"
   }, /*#__PURE__*/_react.default.createElement(_Login.default, null)), /*#__PURE__*/_react.default.createElement(_PrivateRoute.default, {
-    path: "/admin"
-  }, /*#__PURE__*/_react.default.createElement(_UserContainer.default, null)));
+    path: "/admin",
+    component: _UserContainer.default
+  }));
 };
 
 var _default = App;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","./Forms/Registration":"../Components/Forms/Registration.jsx","./Forms/Login":"../Components/Forms/Login.jsx","../Utils/ PrivateRoute":"../Utils/ PrivateRoute.js","./Users/UserContainer":"../Components/Users/UserContainer.jsx"}],"../index.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","./Forms/Registration":"../Components/Forms/Registration.jsx","./Forms/Login":"../Components/Forms/Login.jsx","../Utils/ PrivateRoute":"../Utils/ PrivateRoute.js","./Users/UserContainer":"../Components/Users/UserContainer.jsx","axios":"../node_modules/axios/index.js"}],"../index.js":[function(require,module,exports) {
 "use strict";
 
 var _react = _interopRequireDefault(require("react"));
