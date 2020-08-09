@@ -71,20 +71,21 @@ router.post("/login", async (req, res, next) => {
         message: "Invalid Credentials 2",
       })
     }
-
     const payload = {
       id: user.id,
       username: user.username,
       department: user.department,
       role: user.role, // this value would usually come from the database
     }
+    console.log('LOG IN', payload)
 
-    const token = jwt.sign(payload, process.env.SECRET)
+    const token = await jwt.sign(payload, process.env.SECRET)
     res.cookie("token", token)
     res.json({
       message: `Welcome ${user.username}!`,
       id: user.id,
-      token: token
+      token: token,
+      role: user.role
     })
   } catch (err) {
     next(err)
