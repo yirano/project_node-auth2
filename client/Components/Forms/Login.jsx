@@ -20,7 +20,7 @@ const Login = (props) => {
     e.preventDefault();
     Axios.post("http://localhost:4000/users/login", form)
       .then((res) => {
-        console.log("Log In ---> ", res.data);
+        console.log("Log In ---> ", res);
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("department", res.data.department);
         if (res.data.role === "dean") {

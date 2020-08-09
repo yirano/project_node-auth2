@@ -36997,7 +36997,7 @@ var Login = function Login(props) {
     e.preventDefault();
 
     _axios.default.post("http://localhost:4000/users/login", form).then(function (res) {
-      console.log("Log In ---> ", res.data);
+      console.log("Log In ---> ", res);
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("department", res.data.department);
 
@@ -39382,7 +39382,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59473" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64783" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
