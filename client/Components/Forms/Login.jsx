@@ -18,9 +18,11 @@ const Login = (props) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    Axios.post("http://localhost:4000/users/login", form, {withCredentials: true})
+    Axios.post("http://localhost:4000/users/login", form, {
+      withCredentials: true,
+    })
       .then((res) => {
-        console.log("Log In ---> ", res.headers['set-cookie']);
+        console.log("Log In ---> ", res);
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("department", res.data.department);
         if (res.data.role === "dean") {

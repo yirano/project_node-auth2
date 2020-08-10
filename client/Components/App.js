@@ -26,6 +26,7 @@ const App = () => {
     <div>
       <Link to="/registration">Register</Link>
       <Link to="/login">Log In</Link>
+      <Link to="/admin">Admin</Link>
       <Link to="/logout" onClick={handleClick}>
         Log Out
       </Link>

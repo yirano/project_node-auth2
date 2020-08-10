@@ -36999,7 +36999,7 @@ var Login = function Login(props) {
     _axios.default.post("http://localhost:4000/users/login", form, {
       withCredentials: true
     }).then(function (res) {
-      console.log("Log In ---> ", res.headers['set-cookie']);
+      console.log("Log In ---> ", res);
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("department", res.data.department);
 
@@ -39321,6 +39321,8 @@ var App = function App() {
   }, "Register"), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Link, {
     to: "/login"
   }, "Log In"), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Link, {
+    to: "/admin"
+  }, "Admin"), /*#__PURE__*/_react.default.createElement(_reactRouterDom.Link, {
     to: "/logout",
     onClick: handleClick
   }, "Log Out"), /*#__PURE__*/_react.default.createElement(_PrivateRoute.default, {
@@ -39385,7 +39387,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51877" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54487" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
