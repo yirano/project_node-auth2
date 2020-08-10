@@ -1,32 +1,32 @@
-import React, { useState, useEffect } from "react";
-import { axiosWithAuth } from "../../Utils/axiosWithAuth";
-import UserCard from "./UserCard";
-import { Dashboard } from "../../Utils/styled";
+import React, { useState, useEffect } from "react"
+import { axiosWithAuth } from "../../Utils/axiosWithAuth"
+import UserCard from "./UserCard"
+import { Dashboard } from "../../Utils/styled"
+import { connect } from "react-redux"
+import { getData } from '../../Utils/Actions/actions'
 
-const UserContainer = () => {
-  const [data, setData] = useState([]);
+const UserContainer = (props) => {
 
   useEffect(() => {
-    axiosWithAuth()
-      .get("http://localhost:4000/users/")
-      .then((res) => {
-        console.log(res);
-        setData(res.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);
+    props.getData()
+  }, [])
+
   return (
     <div>
       <h4>Hello Dean,</h4>
       <Dashboard>
-        {data.map((d) => (
+        {props.data.map((d) => (
           <UserCard data={d} />
         ))}
       </Dashboard>
     </div>
-  );
-};
+  )
+}
 
-export default UserContainer;
+const mapStateToProps = state => {
+  return {
+    data: state.data
+  }
+}
+
+export default connect(mapStateToProps, { getData })(UserContainer)
