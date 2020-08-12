@@ -34648,7 +34648,787 @@ var thunk = createThunkMiddleware();
 thunk.withExtraArgument = createThunkMiddleware;
 var _default = thunk;
 exports.default = _default;
-},{}],"../node_modules/shallowequal/index.js":[function(require,module,exports) {
+},{}],"../node_modules/cookie/index.js":[function(require,module,exports) {
+/*!
+ * cookie
+ * Copyright(c) 2012-2014 Roman Shtylman
+ * Copyright(c) 2015 Douglas Christopher Wilson
+ * MIT Licensed
+ */
+'use strict';
+/**
+ * Module exports.
+ * @public
+ */
+
+exports.parse = parse;
+exports.serialize = serialize;
+/**
+ * Module variables.
+ * @private
+ */
+
+var decode = decodeURIComponent;
+var encode = encodeURIComponent;
+var pairSplitRegExp = /; */;
+/**
+ * RegExp to match field-content in RFC 7230 sec 3.2
+ *
+ * field-content = field-vchar [ 1*( SP / HTAB ) field-vchar ]
+ * field-vchar   = VCHAR / obs-text
+ * obs-text      = %x80-FF
+ */
+
+var fieldContentRegExp = /^[\u0009\u0020-\u007e\u0080-\u00ff]+$/;
+/**
+ * Parse a cookie header.
+ *
+ * Parse the given cookie header string into an object
+ * The object has the various cookies as keys(names) => values
+ *
+ * @param {string} str
+ * @param {object} [options]
+ * @return {object}
+ * @public
+ */
+
+function parse(str, options) {
+  if (typeof str !== 'string') {
+    throw new TypeError('argument str must be a string');
+  }
+
+  var obj = {};
+  var opt = options || {};
+  var pairs = str.split(pairSplitRegExp);
+  var dec = opt.decode || decode;
+
+  for (var i = 0; i < pairs.length; i++) {
+    var pair = pairs[i];
+    var eq_idx = pair.indexOf('='); // skip things that don't look like key=value
+
+    if (eq_idx < 0) {
+      continue;
+    }
+
+    var key = pair.substr(0, eq_idx).trim();
+    var val = pair.substr(++eq_idx, pair.length).trim(); // quoted values
+
+    if ('"' == val[0]) {
+      val = val.slice(1, -1);
+    } // only assign once
+
+
+    if (undefined == obj[key]) {
+      obj[key] = tryDecode(val, dec);
+    }
+  }
+
+  return obj;
+}
+/**
+ * Serialize data into a cookie header.
+ *
+ * Serialize the a name value pair into a cookie string suitable for
+ * http headers. An optional options object specified cookie parameters.
+ *
+ * serialize('foo', 'bar', { httpOnly: true })
+ *   => "foo=bar; httpOnly"
+ *
+ * @param {string} name
+ * @param {string} val
+ * @param {object} [options]
+ * @return {string}
+ * @public
+ */
+
+
+function serialize(name, val, options) {
+  var opt = options || {};
+  var enc = opt.encode || encode;
+
+  if (typeof enc !== 'function') {
+    throw new TypeError('option encode is invalid');
+  }
+
+  if (!fieldContentRegExp.test(name)) {
+    throw new TypeError('argument name is invalid');
+  }
+
+  var value = enc(val);
+
+  if (value && !fieldContentRegExp.test(value)) {
+    throw new TypeError('argument val is invalid');
+  }
+
+  var str = name + '=' + value;
+
+  if (null != opt.maxAge) {
+    var maxAge = opt.maxAge - 0;
+
+    if (isNaN(maxAge) || !isFinite(maxAge)) {
+      throw new TypeError('option maxAge is invalid');
+    }
+
+    str += '; Max-Age=' + Math.floor(maxAge);
+  }
+
+  if (opt.domain) {
+    if (!fieldContentRegExp.test(opt.domain)) {
+      throw new TypeError('option domain is invalid');
+    }
+
+    str += '; Domain=' + opt.domain;
+  }
+
+  if (opt.path) {
+    if (!fieldContentRegExp.test(opt.path)) {
+      throw new TypeError('option path is invalid');
+    }
+
+    str += '; Path=' + opt.path;
+  }
+
+  if (opt.expires) {
+    if (typeof opt.expires.toUTCString !== 'function') {
+      throw new TypeError('option expires is invalid');
+    }
+
+    str += '; Expires=' + opt.expires.toUTCString();
+  }
+
+  if (opt.httpOnly) {
+    str += '; HttpOnly';
+  }
+
+  if (opt.secure) {
+    str += '; Secure';
+  }
+
+  if (opt.sameSite) {
+    var sameSite = typeof opt.sameSite === 'string' ? opt.sameSite.toLowerCase() : opt.sameSite;
+
+    switch (sameSite) {
+      case true:
+        str += '; SameSite=Strict';
+        break;
+
+      case 'lax':
+        str += '; SameSite=Lax';
+        break;
+
+      case 'strict':
+        str += '; SameSite=Strict';
+        break;
+
+      case 'none':
+        str += '; SameSite=None';
+        break;
+
+      default:
+        throw new TypeError('option sameSite is invalid');
+    }
+  }
+
+  return str;
+}
+/**
+ * Try decoding a string using a decoding function.
+ *
+ * @param {string} str
+ * @param {function} decode
+ * @private
+ */
+
+
+function tryDecode(str, decode) {
+  try {
+    return decode(str);
+  } catch (e) {
+    return str;
+  }
+}
+},{}],"../node_modules/universal-cookie/es6/utils.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.hasDocumentCookie = hasDocumentCookie;
+exports.cleanCookies = cleanCookies;
+exports.parseCookies = parseCookies;
+exports.isParsingCookie = isParsingCookie;
+exports.readCookie = readCookie;
+
+var cookie = _interopRequireWildcard(require("cookie"));
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function hasDocumentCookie() {
+  // Can we get/set cookies on document.cookie?
+  return typeof document === 'object' && typeof document.cookie === 'string';
+}
+
+function cleanCookies() {
+  document.cookie.split(';').forEach(function (c) {
+    document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
+  });
+}
+
+function parseCookies(cookies, options) {
+  if (typeof cookies === 'string') {
+    return cookie.parse(cookies, options);
+  } else if (typeof cookies === 'object' && cookies !== null) {
+    return cookies;
+  } else {
+    return {};
+  }
+}
+
+function isParsingCookie(value, doNotParse) {
+  if (typeof doNotParse === 'undefined') {
+    // We guess if the cookie start with { or [, it has been serialized
+    doNotParse = !value || value[0] !== '{' && value[0] !== '[' && value[0] !== '"';
+  }
+
+  return !doNotParse;
+}
+
+function readCookie(value, options) {
+  if (options === void 0) {
+    options = {};
+  }
+
+  var cleanValue = cleanupCookieValue(value);
+
+  if (isParsingCookie(cleanValue, options.doNotParse)) {
+    try {
+      return JSON.parse(cleanValue);
+    } catch (e) {// At least we tried
+    }
+  } // Ignore clean value if we failed the deserialization
+  // It is not relevant anymore to trim those values
+
+
+  return value;
+}
+
+function cleanupCookieValue(value) {
+  // express prepend j: before serializing a cookie
+  if (value && value[0] === 'j' && value[1] === ':') {
+    return value.substr(2);
+  }
+
+  return value;
+}
+},{"cookie":"../node_modules/cookie/index.js"}],"../node_modules/universal-cookie/es6/Cookies.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var cookie = _interopRequireWildcard(require("cookie"));
+
+var _utils = require("./utils");
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+// We can't please Rollup and TypeScript at the same time
+// Only way to make both of them work
+var objectAssign = require('object-assign');
+
+var Cookies =
+/** @class */
+function () {
+  function Cookies(cookies, options) {
+    var _this = this;
+
+    this.changeListeners = [];
+    this.HAS_DOCUMENT_COOKIE = false;
+    this.cookies = (0, _utils.parseCookies)(cookies, options);
+    new Promise(function () {
+      _this.HAS_DOCUMENT_COOKIE = (0, _utils.hasDocumentCookie)();
+    }).catch(function () {});
+  }
+
+  Cookies.prototype._updateBrowserValues = function (parseOptions) {
+    if (!this.HAS_DOCUMENT_COOKIE) {
+      return;
+    }
+
+    this.cookies = cookie.parse(document.cookie, parseOptions);
+  };
+
+  Cookies.prototype._emitChange = function (params) {
+    for (var i = 0; i < this.changeListeners.length; ++i) {
+      this.changeListeners[i](params);
+    }
+  };
+
+  Cookies.prototype.get = function (name, options, parseOptions) {
+    if (options === void 0) {
+      options = {};
+    }
+
+    this._updateBrowserValues(parseOptions);
+
+    return (0, _utils.readCookie)(this.cookies[name], options);
+  };
+
+  Cookies.prototype.getAll = function (options, parseOptions) {
+    if (options === void 0) {
+      options = {};
+    }
+
+    this._updateBrowserValues(parseOptions);
+
+    var result = {};
+
+    for (var name_1 in this.cookies) {
+      result[name_1] = (0, _utils.readCookie)(this.cookies[name_1], options);
+    }
+
+    return result;
+  };
+
+  Cookies.prototype.set = function (name, value, options) {
+    var _a;
+
+    if (typeof value === 'object') {
+      value = JSON.stringify(value);
+    }
+
+    this.cookies = objectAssign({}, this.cookies, (_a = {}, _a[name] = value, _a));
+
+    if (this.HAS_DOCUMENT_COOKIE) {
+      document.cookie = cookie.serialize(name, value, options);
+    }
+
+    this._emitChange({
+      name: name,
+      value: value,
+      options: options
+    });
+  };
+
+  Cookies.prototype.remove = function (name, options) {
+    var finalOptions = options = objectAssign({}, options, {
+      expires: new Date(1970, 1, 1, 0, 0, 1),
+      maxAge: 0
+    });
+    this.cookies = objectAssign({}, this.cookies);
+    delete this.cookies[name];
+
+    if (this.HAS_DOCUMENT_COOKIE) {
+      document.cookie = cookie.serialize(name, '', finalOptions);
+    }
+
+    this._emitChange({
+      name: name,
+      value: undefined,
+      options: options
+    });
+  };
+
+  Cookies.prototype.addChangeListener = function (callback) {
+    this.changeListeners.push(callback);
+  };
+
+  Cookies.prototype.removeChangeListener = function (callback) {
+    var idx = this.changeListeners.indexOf(callback);
+
+    if (idx >= 0) {
+      this.changeListeners.splice(idx, 1);
+    }
+  };
+
+  return Cookies;
+}();
+
+var _default = Cookies;
+exports.default = _default;
+},{"cookie":"../node_modules/cookie/index.js","./utils":"../node_modules/universal-cookie/es6/utils.js","object-assign":"../node_modules/object-assign/index.js"}],"../node_modules/universal-cookie/es6/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _Cookies = _interopRequireDefault(require("./Cookies"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var _default = _Cookies.default;
+exports.default = _default;
+},{"./Cookies":"../node_modules/universal-cookie/es6/Cookies.js"}],"../node_modules/react-cookie/es6/Cookies.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _universalCookie = _interopRequireDefault(require("universal-cookie"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var _default = _universalCookie.default;
+exports.default = _default;
+},{"universal-cookie":"../node_modules/universal-cookie/es6/index.js"}],"../node_modules/react-cookie/es6/CookiesContext.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.Consumer = exports.Provider = void 0;
+
+var React = _interopRequireWildcard(require("react"));
+
+var _Cookies = _interopRequireDefault(require("./Cookies"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+var CookiesContext = React.createContext(new _Cookies.default());
+var Provider = CookiesContext.Provider,
+    Consumer = CookiesContext.Consumer;
+exports.Consumer = Consumer;
+exports.Provider = Provider;
+var _default = CookiesContext;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","./Cookies":"../node_modules/react-cookie/es6/Cookies.js"}],"../node_modules/react-cookie/es6/CookiesProvider.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var React = _interopRequireWildcard(require("react"));
+
+var _universalCookie = _interopRequireDefault(require("universal-cookie"));
+
+var _CookiesContext = require("./CookiesContext");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+var __extends = void 0 && (void 0).__extends || function () {
+  var extendStatics = function (d, b) {
+    extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+
+    return extendStatics(d, b);
+  };
+
+  return function (d, b) {
+    extendStatics(d, b);
+
+    function __() {
+      this.constructor = d;
+    }
+
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+
+var CookiesProvider =
+/** @class */
+function (_super) {
+  __extends(CookiesProvider, _super);
+
+  function CookiesProvider(props) {
+    var _this = _super.call(this, props) || this;
+
+    if (props.cookies) {
+      _this.cookies = props.cookies;
+    } else {
+      _this.cookies = new _universalCookie.default();
+    }
+
+    return _this;
+  }
+
+  CookiesProvider.prototype.render = function () {
+    return React.createElement(_CookiesContext.Provider, {
+      value: this.cookies
+    }, this.props.children);
+  };
+
+  return CookiesProvider;
+}(React.Component);
+
+var _default = CookiesProvider;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","universal-cookie":"../node_modules/universal-cookie/es6/index.js","./CookiesContext":"../node_modules/react-cookie/es6/CookiesContext.js"}],"../node_modules/react-cookie/es6/withCookies.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = withCookies;
+
+var React = _interopRequireWildcard(require("react"));
+
+var _CookiesContext = require("./CookiesContext");
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+var __extends = void 0 && (void 0).__extends || function () {
+  var extendStatics = function (d, b) {
+    extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+
+    return extendStatics(d, b);
+  };
+
+  return function (d, b) {
+    extendStatics(d, b);
+
+    function __() {
+      this.constructor = d;
+    }
+
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+
+var __assign = void 0 && (void 0).__assign || function () {
+  __assign = Object.assign || function (t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+      s = arguments[i];
+
+      for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+    }
+
+    return t;
+  };
+
+  return __assign.apply(this, arguments);
+};
+
+var __rest = void 0 && (void 0).__rest || function (s, e) {
+  var t = {};
+
+  for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
+
+  if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+    if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t[p[i]] = s[p[i]];
+  }
+  return t;
+};
+
+// Only way to make function modules work with both TypeScript and Rollup
+var hoistStatics = require('hoist-non-react-statics');
+
+function withCookies(WrappedComponent) {
+  // @ts-ignore
+  var name = WrappedComponent.displayName || WrappedComponent.name;
+
+  var CookieWrapper =
+  /** @class */
+  function (_super) {
+    __extends(CookieWrapper, _super);
+
+    function CookieWrapper() {
+      var _this = _super !== null && _super.apply(this, arguments) || this;
+
+      _this.onChange = function () {
+        // Make sure to update children with new values
+        _this.forceUpdate();
+      };
+
+      return _this;
+    }
+
+    CookieWrapper.prototype.listen = function () {
+      this.props.cookies.addChangeListener(this.onChange);
+    };
+
+    CookieWrapper.prototype.unlisten = function (cookies) {
+      (cookies || this.props.cookies).removeChangeListener(this.onChange);
+    };
+
+    CookieWrapper.prototype.componentDidMount = function () {
+      this.listen();
+    };
+
+    CookieWrapper.prototype.componentDidUpdate = function (prevProps) {
+      if (prevProps.cookies !== this.props.cookies) {
+        this.unlisten(prevProps.cookies);
+        this.listen();
+      }
+    };
+
+    CookieWrapper.prototype.componentWillUnmount = function () {
+      this.unlisten();
+    };
+
+    CookieWrapper.prototype.render = function () {
+      var _a = this.props,
+          forwardedRef = _a.forwardedRef,
+          cookies = _a.cookies,
+          restProps = __rest(_a, ["forwardedRef", "cookies"]);
+
+      var allCookies = cookies.getAll();
+      return React.createElement(WrappedComponent, __assign({}, restProps, {
+        ref: forwardedRef,
+        cookies: cookies,
+        allCookies: allCookies
+      }));
+    };
+
+    CookieWrapper.displayName = "withCookies(" + name + ")";
+    CookieWrapper.WrappedComponent = WrappedComponent;
+    return CookieWrapper;
+  }(React.Component);
+
+  var ForwardedComponent = React.forwardRef(function (props, ref) {
+    return React.createElement(_CookiesContext.Consumer, null, function (cookies) {
+      return React.createElement(CookieWrapper, __assign({
+        cookies: cookies
+      }, props, {
+        forwardedRef: ref
+      }));
+    });
+  });
+  ForwardedComponent.displayName = CookieWrapper.displayName;
+  ForwardedComponent.WrappedComponent = CookieWrapper.WrappedComponent;
+  return hoistStatics(ForwardedComponent, WrappedComponent);
+}
+},{"react":"../node_modules/react/index.js","./CookiesContext":"../node_modules/react-cookie/es6/CookiesContext.js","hoist-non-react-statics":"../node_modules/hoist-non-react-statics/dist/hoist-non-react-statics.cjs.js"}],"../node_modules/react-cookie/es6/useCookies.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = useCookies;
+
+var _react = require("react");
+
+var _CookiesContext = _interopRequireDefault(require("./CookiesContext"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function useCookies(dependencies) {
+  var cookies = (0, _react.useContext)(_CookiesContext.default);
+
+  if (!cookies) {
+    throw new Error('Missing <CookiesProvider>');
+  }
+
+  var initialCookies = cookies.getAll();
+
+  var _a = (0, _react.useState)(initialCookies),
+      allCookies = _a[0],
+      setCookies = _a[1];
+
+  var previousCookiesRef = (0, _react.useRef)(allCookies);
+  (0, _react.useEffect)(function () {
+    function onChange() {
+      var newCookies = cookies.getAll();
+
+      if (shouldUpdate(dependencies || null, newCookies, previousCookiesRef.current)) {
+        setCookies(newCookies);
+      }
+
+      previousCookiesRef.current = newCookies;
+    }
+
+    cookies.addChangeListener(onChange);
+    return function () {
+      cookies.removeChangeListener(onChange);
+    };
+  }, [cookies]);
+  var setCookie = (0, _react.useMemo)(function () {
+    return cookies.set.bind(cookies);
+  }, [cookies]);
+  var removeCookie = (0, _react.useMemo)(function () {
+    return cookies.remove.bind(cookies);
+  }, [cookies]);
+  return [allCookies, setCookie, removeCookie];
+}
+
+function shouldUpdate(dependencies, newCookies, oldCookies) {
+  if (!dependencies) {
+    return true;
+  }
+
+  for (var _i = 0, dependencies_1 = dependencies; _i < dependencies_1.length; _i++) {
+    var dependency = dependencies_1[_i];
+
+    if (newCookies[dependency] !== oldCookies[dependency]) {
+      return true;
+    }
+  }
+
+  return false;
+}
+},{"react":"../node_modules/react/index.js","./CookiesContext":"../node_modules/react-cookie/es6/CookiesContext.js"}],"../node_modules/react-cookie/es6/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "Cookies", {
+  enumerable: true,
+  get: function () {
+    return _Cookies.default;
+  }
+});
+Object.defineProperty(exports, "CookiesProvider", {
+  enumerable: true,
+  get: function () {
+    return _CookiesProvider.default;
+  }
+});
+Object.defineProperty(exports, "withCookies", {
+  enumerable: true,
+  get: function () {
+    return _withCookies.default;
+  }
+});
+Object.defineProperty(exports, "useCookies", {
+  enumerable: true,
+  get: function () {
+    return _useCookies.default;
+  }
+});
+
+var _Cookies = _interopRequireDefault(require("./Cookies"));
+
+var _CookiesProvider = _interopRequireDefault(require("./CookiesProvider"));
+
+var _withCookies = _interopRequireDefault(require("./withCookies"));
+
+var _useCookies = _interopRequireDefault(require("./useCookies"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+},{"./Cookies":"../node_modules/react-cookie/es6/Cookies.js","./CookiesProvider":"../node_modules/react-cookie/es6/CookiesProvider.js","./withCookies":"../node_modules/react-cookie/es6/withCookies.js","./useCookies":"../node_modules/react-cookie/es6/useCookies.js"}],"../node_modules/shallowequal/index.js":[function(require,module,exports) {
 //
 
 module.exports = function shallowEqual(objA, objB, compare, compareContext) {
@@ -39344,6 +40124,8 @@ var _axios = _interopRequireDefault(require("axios"));
 
 var _reactRouterDom = require("react-router-dom");
 
+var _reactCookie = require("react-cookie");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
@@ -39381,6 +40163,11 @@ var Login = function Login(props) {
 
   var history = (0, _reactRouterDom.useHistory)();
 
+  var _useCookies = (0, _reactCookie.useCookies)(["token"]),
+      _useCookies2 = _slicedToArray(_useCookies, 2),
+      cookies = _useCookies2[0],
+      setCookie = _useCookies2[1];
+
   var handleChange = function handleChange(e) {
     setForm(_objectSpread(_objectSpread({}, form), {}, _defineProperty({}, e.target.name, e.target.value)));
   };
@@ -39390,6 +40177,7 @@ var Login = function Login(props) {
 
     _axios.default.post("http://localhost:4000/users/login", form).then(function (res) {
       localStorage.setItem("token", res.data.token);
+      setCookie("token", res.data.token);
       localStorage.setItem("department", res.data.department);
 
       if (res.data.role === "dean") {
@@ -39404,6 +40192,7 @@ var Login = function Login(props) {
     });
   };
 
+  console.log(cookies["token"]);
   return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement(_styled.Form, {
     onSubmit: handleSubmit
   }, /*#__PURE__*/_react.default.createElement("div", {
@@ -39428,7 +40217,7 @@ var Login = function Login(props) {
 
 var _default = Login;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","../../Utils/styled":"../Utils/styled.js","axios":"../node_modules/axios/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js"}],"../Utils/ PrivateRoute.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","../../Utils/styled":"../Utils/styled.js","axios":"../node_modules/axios/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","react-cookie":"../node_modules/react-cookie/es6/index.js"}],"../Utils/ PrivateRoute.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41693,6 +42482,8 @@ exports.default = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
+var _reactCookie = require("react-cookie");
+
 var _reactRouterDom = require("react-router-dom");
 
 var _Registration = _interopRequireDefault(require("./Forms/Registration"));
@@ -41711,14 +42502,33 @@ var _axios = _interopRequireDefault(require("axios"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
 var App = function App() {
   var history = (0, _reactRouterDom.useHistory)();
 
+  var _useCookies = (0, _reactCookie.useCookies)(),
+      _useCookies2 = _slicedToArray(_useCookies, 3),
+      cookies = _useCookies2[0],
+      setCookie = _useCookies2[1],
+      deleteCookie = _useCookies2[2];
+
   var handleClick = function handleClick() {
-    _axios.default.get('http://localhost:4000/users/logout').then(function (res) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('department');
-      history.push('/login');
+    _axios.default.get("http://localhost:4000/users/logout").then(function (res) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("department");
+      deleteCookie("token");
+      history.push("/login");
     }).catch(function (err) {
       console.log(err);
     });
@@ -41753,7 +42563,7 @@ var App = function App() {
 
 var _default = App;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","./Forms/Registration":"../Components/Forms/Registration.jsx","./Forms/Login":"../Components/Forms/Login.jsx","../Utils/ PrivateRoute":"../Utils/ PrivateRoute.js","./Users/UserContainer":"../Components/Users/UserContainer.jsx","./Users/StudentContainer":"../Components/Users/StudentContainer.jsx","./Users/DepartmentContainer":"../Components/Users/DepartmentContainer.jsx","axios":"../node_modules/axios/index.js"}],"../Utils/Reducer/reducer.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","react-cookie":"../node_modules/react-cookie/es6/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","./Forms/Registration":"../Components/Forms/Registration.jsx","./Forms/Login":"../Components/Forms/Login.jsx","../Utils/ PrivateRoute":"../Utils/ PrivateRoute.js","./Users/UserContainer":"../Components/Users/UserContainer.jsx","./Users/StudentContainer":"../Components/Users/StudentContainer.jsx","./Users/DepartmentContainer":"../Components/Users/DepartmentContainer.jsx","axios":"../node_modules/axios/index.js"}],"../Utils/Reducer/reducer.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -41803,13 +42613,15 @@ var _reducer = _interopRequireDefault(require("./Utils/Reducer/reducer"));
 
 var _redux = require("redux");
 
+var _reactCookie = require("react-cookie");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var store = (0, _redux.createStore)(_reducer.default, (0, _redux.applyMiddleware)(_reduxThunk.default));
-(0, _reactDom.render)( /*#__PURE__*/_react.default.createElement(_reactRouterDom.BrowserRouter, null, /*#__PURE__*/_react.default.createElement(_reactRedux.Provider, {
+(0, _reactDom.render)( /*#__PURE__*/_react.default.createElement(_reactCookie.CookiesProvider, null, /*#__PURE__*/_react.default.createElement(_reactRedux.Provider, {
   store: store
-}, /*#__PURE__*/_react.default.createElement(_App.default, null))), document.querySelector("#root"));
-},{"react":"../node_modules/react/index.js","react-dom":"../node_modules/react-dom/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","react-redux":"../node_modules/react-redux/es/index.js","redux-thunk":"../node_modules/redux-thunk/es/index.js","./Components/App":"../Components/App.js","./Utils/Reducer/reducer":"../Utils/Reducer/reducer.js","redux":"../node_modules/redux/es/redux.js"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+}, /*#__PURE__*/_react.default.createElement(_reactRouterDom.BrowserRouter, null, /*#__PURE__*/_react.default.createElement(_App.default, null)))), document.querySelector("#root"));
+},{"react":"../node_modules/react/index.js","react-dom":"../node_modules/react-dom/index.js","react-router-dom":"../node_modules/react-router-dom/esm/react-router-dom.js","react-redux":"../node_modules/react-redux/es/index.js","redux-thunk":"../node_modules/redux-thunk/es/index.js","./Components/App":"../Components/App.js","./Utils/Reducer/reducer":"../Utils/Reducer/reducer.js","redux":"../node_modules/redux/es/redux.js","react-cookie":"../node_modules/react-cookie/es6/index.js"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -41837,7 +42649,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61567" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50216" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

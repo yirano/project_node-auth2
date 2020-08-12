@@ -1,20 +1,23 @@
 import React from "react";
 import { render } from "react-dom";
 import { BrowserRouter as Router } from "react-router-dom";
-import { Provider } from 'react-redux'
-import thunk from 'redux-thunk'
+import { Provider } from "react-redux";
+import thunk from "redux-thunk";
 
 import App from "./Components/App";
-import reducer from "./Utils/Reducer/reducer"
-import { applyMiddleware, createStore } from "redux"
+import reducer from "./Utils/Reducer/reducer";
+import { applyMiddleware, createStore } from "redux";
+import { CookiesProvider } from "react-cookie";
 
-const store = createStore(reducer, applyMiddleware(thunk))
+const store = createStore(reducer, applyMiddleware(thunk));
 
 render(
-  <Router>
+  <CookiesProvider>
     <Provider store={store}>
-      <App />
+      <Router>
+        <App />
+      </Router>
     </Provider>
-  </Router>,
+  </CookiesProvider>,
   document.querySelector("#root")
 );
