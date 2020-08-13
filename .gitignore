@@ -1,2 +1,7 @@
 .DS_Store
 node_modules/
+
+# dotenv
+.env
+
+data/config.js
